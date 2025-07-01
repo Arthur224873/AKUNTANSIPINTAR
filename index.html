@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akuntansi Pintar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+        /* --- Variabel Warna Emas Modern & Professional --- */
+        :root {
+            --primary-gold: #B8860B; /* Dark Goldenrod */
+            --primary-dark-gold: #8B6914; /* Darker Gold */
+            --light-gold: #FFD700; /* Gold */
+            --accent-gold: #FFC107; /* Amber Gold */
+            --text-color: #4A4A4A; /* Dark Gray for text */
+            --light-text-color: #8C8C8C; /* Lighter Gray for subtle text */
+            --light-bg: #F8F8F8; /* Very light gray for backgrounds */
+            --dark-bg: #EAEAEA; /* Slightly darker gray for subtle accents */
+            --card-bg: #FFFFFF; /* White for cards */
+            --border-color: #D3D3D3; /* Light gray for borders */
+            --danger-color: #E74C3C; /* Red */
+            --success-color: #27AE60; /* Green */
+            --info-color: #3498DB; /* Blue */
+            --warning-color: #F1C40F; /* Yellow */
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-dark: rgba(0, 0, 0, 0.25);
+
+            /* Gradients (Updated for Gold) */
+            --header-gradient: linear-gradient(135deg, var(--primary-gold) 0%, var(--primary-dark-gold) 100%);
+            --button-primary-gradient: linear-gradient(45deg, var(--light-gold), var(--primary-gold));
+            --button-success-gradient: linear-gradient(45deg, var(--success-color), #208b4e);
+            --button-danger-gradient: linear-gradient(45deg, var(--danger-color), #c0392b);
+            --button-secondary-gradient: linear-gradient(45deg, var(--accent-gold), #e0a300); /* Adjusted secondary */
+        }
+
+        /* --- Reset & Base Styles --- */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--header-gradient);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 8px 16px var(--shadow-dark);
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="%23ffffff" fill-opacity="0.05" fill-rule="evenodd"><path d="M0 60V0h60v60zM30 0L0 30l30 30L60 30z" fill-rule="nonzero"/></g></svg>');
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4.5em; /* Diperbesar */
+            font-weight: 800;
+            letter-spacing: 0.12em; /* Diperjelas */
+            /* Updated for shiny gold gradient */
+            background: linear-gradient(
+                45deg,
+                #FFD700 0%,     /* Bright Gold */
+                #DAA520 25%,    /* Goldenrod */
+                #B8860B 50%,    /* Dark Goldenrod */
+                #DAA520 75%,    /* Goldenrod */
+                #FFD700 100%    /* Bright Gold */
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent; /* Fallback for browsers that don't support -webkit-text-fill-color */
+            text-shadow: 2px 2px 5px var(--shadow-dark);
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-creator { /* This class is now unused in HTML but kept in CSS for completeness */
+            font-size: 1em;
+            font-weight: 400;
+            margin-top: 10px;
+            opacity: 0.8;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 30px auto;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px var(--shadow-medium);
+        }
+
+        /* --- Tab Navigation --- */
+        .tab-navigation {
+            display: flex;
+            border-bottom: 3px solid var(--border-color);
+            margin-bottom: 30px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            background-color: var(--dark-bg);
+            border-radius: 8px;
+            padding: 5px;
+        }
+        .tab-navigation::-webkit-scrollbar { display: none; }
+
+        .tab-button {
+            background-color: transparent;
+            border: none;
+            padding: 18px 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--light-text-color);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-gold);
+            background-color: rgba(184, 134, 11, 0.08); /* RGB of primary-gold */
+        }
+
+        .tab-button.active {
+            color: var(--text-color); /* Changed to dark text for gold background */
+            background: var(--button-primary-gradient);
+            box-shadow: 0 4px 10px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--accent-gold);
+        }
+
+        /* --- Tab Content --- */
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+            flex-direction: column;
+            flex: 1;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .tab-content.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Section Titles (H2) --- */
+        h2 {
+            color: var(--primary-dark-gold); /* Darker gold for headers */
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+            border-bottom: 4px solid var(--border-color);
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2 svg {
+            color: var(--accent-gold);
+            font-size: 1.3em;
+        }
+
+        /* --- Kasir Layout --- */
+        .kasir-layout {
+            display: grid;
+            grid-template-columns: 2fr 3fr;
+            gap: 35px;
+            flex: 1;
+        }
+
+        .left-panel, .right-panel {
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--light-bg);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"], /* Added for user management */
+        input[type="date"], /* For expense and potentially other date inputs */
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1.05em;
+            box-sizing: border-box;
+            background-color: var(--card-bg);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="password"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary-gold); /* Gold focus */
+            box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.25); /* Gold focus ring */
+            outline: none;
+        }
+        input[readonly] {
+            background-color: var(--dark-bg);
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* --- Button Group --- */
+        .button-group {
+            display: flex;
+            gap: 18px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        .modal .button-group, .transaction-detail .button-group {
+            justify-content: center;
+        }
+        .login-modal-content .button-group {
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px var(--shadow-light);
+            color: white; /* Default to white text for most buttons */
+        }
+
+        button.primary { background: var(--button-primary-gradient); color: var(--text-color); } /* Dark text on gold */
+        button.primary:hover { transform: translateY(-3px); box-shadow: 0 6px 12px var(--shadow-medium); }
+
+        button.secondary { background: var(--button-secondary-gradient); color: var(--text-color); } /* Dark text on amber gold */
+        button.secondary:hover { transform: translateY(-3px); box-shadow: 0 6px 12px var(--shadow-medium); }
+
+        button.danger { background: var(--button-danger-gradient); }
+        button.danger:hover { transform: translateY(-3px); box-shadow: 0 6px 12px var(--shadow-medium); }
+
+        button.success { background: var(--button-success-gradient); }
+        button.success:hover { transform: translateY(-3px); box-shadow: 0 6px 12px var(--shadow-medium); }
+
+        button.info { background-color: var(--info-color); }
+        button.info:hover { background-color: #217dbb; transform: translateY(-3px); box-shadow: 0 6px 12px var(--shadow-medium); }
+
+        button.warning { background-color: var(--warning-color); color: var(--text-color); } /* Dark text on yellow */
+        button.warning:hover { background-color: #d8af11; transform: translateY(-3px); box-shadow: 0 6px 12px var(--shadow-medium); }
+
+        /* --- Cart Items Display --- */
+        .cart-items {
+            flex: 1;
+            margin-bottom: 30px;
+            overflow-y: auto;
+            max-height: 400px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--dark-bg);
+            transition: background-color 0.2s ease;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item:hover { background-color: var(--dark-bg); }
+
+        .cart-item-info { flex-grow: 1; margin-right: 20px; }
+        .cart-item-name { font-weight: 700; color: var(--primary-gold); font-size: 1.1em; } /* Gold product name */
+        .cart-item-quantity, .cart-item-price-per-item { font-size: 0.9em; color: var(--light-text-color); }
+        .cart-item-total-price { font-weight: 700; color: var(--success-color); white-space: nowrap; font-size: 1.2em; }
+        .cart-item-actions button {
+            padding: 8px 12px;
+            font-size: 0.85em;
+            border-radius: 6px;
+            box-shadow: none;
+            transform: none;
+        }
+        .cart-item-actions button:hover { opacity: 0.8; }
+        .empty-cart-message, .empty-table-message, .empty-chart-message {
+            text-align: center;
+            color: var(--light-text-color);
+            padding: 40px;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        /* --- Cart Summary --- */
+        .cart-summary {
+            margin-top: auto;
+            border-top: 3px solid var(--primary-gold); /* Gold border top */
+            padding-top: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.15em;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 1.8em;
+            color: var(--primary-dark-gold); /* Darker gold for total */
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 20px;
+        }
+        .summary-row.change-negative { color: var(--danger-color); }
+        .summary-row.change-positive { color: var(--success-color); }
+
+
+        /* --- Table Styles --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        table thead th {
+            background: var(--header-gradient);
+            color: white;
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 2px solid var(--primary-dark-gold); /* Darker gold border */
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        table tbody td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 0.95em;
+        }
+
+        table tbody tr:nth-child(even) { background-color: var(--light-bg); }
+        table tbody tr:hover { background-color: var(--dark-bg); transition: background-color 0.2s ease; }
+
+        .table-actions { display: flex; gap: 10px; }
+        .table-actions button {
+            padding: 9px 15px;
+            font-size: 0.85em;
+            box-shadow: none;
+            transform: none;
+        }
+        .table-actions button:hover { opacity: 0.8; }
+
+        /* --- Notification Area --- */
+        #notification-area {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 350px;
+        }
+
+        .notification {
+            background-color: #333;
+            color: white;
+            padding: 16px 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px var(--shadow-dark);
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.5s forwards, fadeOut var(--notification-duration) forwards;
+            animation-delay: 0s, calc(var(--notification-duration) - 0.5s);
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+        .notification::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.4);
+            animation: progressBar var(--notification-duration) linear forwards;
+        }
+        @keyframes progressBar { from { width: 100%; } to { width: 0%; } }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .notification.success { background-color: var(--success-color); }
+        .notification.error   { background-color: var(--danger-color); }
+        .notification.info    { background-color: var(--info-color); }
+        .notification.warning { background-color: var(--warning-color); color: var(--text-color); }
+
+        /* --- Footer --- */
+        footer {
+            background-color: var(--text-color);
+            color: white;
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 50px;
+            font-size: 0.95em;
+            box-shadow: 0 -5px 15px var(--shadow-medium);
+            flex-shrink: 0;
+        }
+        footer a {
+            color: var(--light-gold); /* Warna emas untuk link di footer */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        footer a:hover {
+            color: var(--accent-gold);
+            text-decoration: underline;
+        }
+
+
+        /* --- Modal Styles --- */
+        .modal {
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            width: 95%;
+            max-width: 600px;
+            box-shadow: 0 15px 40px var(--shadow-dark);
+            position: relative;
+            transform: translateY(-30px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .modal.active .modal-content { transform: translateY(0); opacity: 1; }
+
+        .close-button {
+            color: var(--light-text-color);
+            font-size: 35px;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .close-button:hover { color: var(--danger-color); }
+
+        .modal-content h3 {
+            color: var(--primary-gold); /* Gold modal header */
+            margin-top: 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            font-size: 2em;
+        }
+        .modal-content ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--light-bg);
+        }
+        .modal-content ul li {
+            padding: 10px 15px;
+            border-bottom: 1px dashed var(--dark-bg);
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+        .modal-content ul li:last-child { border-bottom: none; }
+
+        .modal-content .summary-row {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .modal-content .summary-row.total {
+            font-size: 1.4em;
+        }
+
+        /* --- Rekapan Section Styles --- */
+        .recap-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted for more cards */
+            gap: 30px;
+            margin-top: 30px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--light-bg);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .recap-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px var(--shadow-light);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .recap-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px var(--shadow-medium);
+        }
+
+        .recap-card h3 {
+            color: var(--light-text-color);
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            text-align: center;
+        }
+
+        .recap-card .amount {
+            font-size: 3.2em;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            color: var(--primary-gold); /* Gold amount */
+            margin-bottom: 0;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .recap-card.expense .amount { color: var(--danger-color); }
+        .recap-card.profit .amount { color: var(--success-color); }
+
+        .chart-container {
+            margin-top: 40px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px var(--shadow-light);
+            max-width: 100%;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .chart-container canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+        }
+        .chart-message {
+            text-align: center;
+            color: var(--light-text-color);
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Pengaturan tab specific styles */
+        .settings-section {
+            background-color: var(--light-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+        .settings-section h3 {
+            color: var(--primary-dark-gold);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .settings-info {
+            font-size: 0.95em;
+            color: var(--light-text-color);
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+        .settings-section .button-group {
+            margin-top: 20px;
+            justify-content: flex-start;
+        }
+
+        /* Login Modal specific styles */
+        .login-modal-content {
+            max-width: 450px;
+            text-align: center;
+        }
+        .login-modal-content h3 {
+            font-size: 2.5em;
+            color: var(--primary-dark-gold);
+            border-bottom: none;
+            margin-bottom: 10px;
+        }
+        .login-modal-content .company-name {
+            font-size: 1.1em;
+            color: var(--light-text-color);
+            margin-bottom: 30px;
+        }
+        .login-modal-content .form-group {
+            text-align: left;
+        }
+        .login-modal-content label {
+            font-size: 1em;
+        }
+        .login-modal-content input {
+            padding: 16px 20px;
+            font-size: 1.1em;
+            border-radius: 10px;
+        }
+        .login-modal-content button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2em;
+        }
+        .login-modal-content .info-text {
+            font-size: 0.9em;
+            color: var(--light-text-color);
+            margin-top: 25px;
+        }
+
+
+        /* Print Receipt Style */
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; color: #000; }
+            header, footer, .container, .tab-navigation, #notification-area, .modal, button, .button-group, .settings-section { display: none !important; }
+            .print-receipt-content {
+                display: block !important;
+                font-family: 'Consolas', 'Monospace', monospace;
+                font-size: 12px;
+                line-height: 1.4;
+                width: 300px;
+                margin: 0 auto;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+            .print-receipt-content .header, .print-receipt-content .footer { text-align: center; margin-bottom: 10px; }
+            .print-receipt-content .separator { border-top: 1px dashed #000; margin: 8px 0; }
+            .print-receipt-content .item-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+            .print-receipt-content .item-name { flex-grow: 1; padding-right: 5px; }
+            .print-receipt-content .item-qty-price { white-space: nowrap; text-align: right; }
+            .print-receipt-content .summary-row { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
+            .print-receipt-content .total-row { font-size: 1.1em; border-top: 1px dashed #000; padding-top: 5px; margin-top: 5px; }
+            .print-receipt-content .text-right { text-align: right; }
+            /* Logo specific styles for print */
+            .print-receipt-content .receipt-logo-container { text-align: center; margin-bottom: 10px; }
+            .print-receipt-content #receipt-logo-print { display: block; max-width: 100px; max-height: 80px; margin: 0 auto; }
+        }
+
+        /* --- Media Queries (Responsive Design) --- */
+        @media (max-width: 1024px) {
+            .kasir-layout { grid-template-columns: 1fr; }
+            .left-panel, .right-panel { margin-bottom: 25px; }
+            .tab-button { padding: 15px 25px; font-size: 1em; }
+            header h1 { font-size: 3.8em; } /* Penyesuaian responsif */
+            h2 { font-size: 2em; }
+            .recap-summary { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+            .recap-card .amount { font-size: 2.8em; }
+        }
+
+        @media (max-width: 768px) {
+            .container { margin: 20px; padding: 20px; }
+            header h1 { font-size: 3em; } /* Penyesuaian responsif */
+            .app-creator { font-size: 0.9em; }
+            h2 { font-size: 1.8em; margin-bottom: 25px; }
+            .tab-navigation { flex-wrap: wrap; justify-content: center; padding: 3px; }
+            .tab-button { flex-basis: 49%; margin: 2px; padding: 12px 20px; font-size: 0.95em; }
+            input[type="text"], input[type="number"], select, textarea { padding: 12px 15px; font-size: 0.95em; }
+            button { padding: 12px 20px; font-size: 0.95em; }
+            .button-group { gap: 12px; margin-top: 20px; }
+            .recap-summary { grid-template-columns: 1fr; }
+            .recap-card .amount { font-size: 2.5em; }
+            .recap-card h3 { font-size: 1.2em; }
+            .cart-item { flex-wrap: wrap; gap: 8px; padding: 12px 15px; }
+            .cart-item-name { flex-basis: 100%; }
+            .cart-item-info, .cart-item-total-price, .cart-item-actions { flex-grow: 1; flex-basis: auto; }
+            .cart-item-actions { justify-content: flex-end; }
+            .summary-row { font-size: 1em; }
+            .summary-row.total { font-size: 1.5em; }
+            .modal-content { padding: 30px; }
+            .modal-content h3 { font-size: 1.6em; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 2.5em; } /* Penyesuaian responsif */
+            .container { margin: 10px; padding: 15px; }
+            h2 { font-size: 1.6em; }
+            .tab-button { flex-basis: 100%; }
+            .notification { max-width: 90%; right: 5%; left: 5%; }
+            .recap-card .amount { font-size: 2em; }
+            .recap-card h3 { font-size: 1.2em; }
+        }
+        .scrollable-container {
+          overflow: auto; /* Memungkinkan scroll baik vertikal maupun horizontal */
+          cursor: grab;
+        }
+        .scrollable-container:active {
+          cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="app-company-name">Akuntansi Pintar</h1>
+    </header>
+
+    <main class="container">
+        <nav class="tab-navigation">
+            <button class="tab-button active" data-tab="kasir">
+                <i data-feather="shopping-cart"></i> Kasir
+            </button>
+            <button class="tab-button" data-tab="produk">
+                <i data-feather="box"></i> Produk
+            </button>
+            <button class="tab-button" data-tab="pengeluaran">
+                <i data-feather="dollar-sign"></i> Pengeluaran
+            </button>
+            <button class="tab-button" data-tab="laporan">
+                <i data-feather="file-text"></i> Laporan Penjualan
+            </button>
+            <button class="tab-button" data-tab="rekapan">
+                <i data-feather="pie-chart"></i> Rekapan Keuangan
+            </button>
+            <button class="tab-button" data-tab="pengaturan">
+                <i data-feather="settings"></i> Pengaturan
+            </button>
+        </nav>
+
+        <div id="kasir" class="tab-content active">
+            <div class="kasir-layout">
+                <div class="left-panel">
+                    <h2><i data-feather="tag"></i> Input Produk</h2>
+
+                    <div class="form-group">
+                        <label for="product-select">Pilih Produk:</label>
+                        <select id="product-select">
+                            <option value="">-- Pilih Produk --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category-filter">Filter Kategori:</label>
+                        <select id="category-filter">
+                            <option value="">-- Semua Kategori --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-name">Nama Produk:</label>
+                        <input type="text" id="product-name" readonly placeholder="Akan terisi otomatis">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Harga (Rp):</label>
+                        <input type="number" id="product-price" readonly placeholder="Akan terisi otomatis">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-stock-display">Sisa Stok:</label>
+                        <input type="text" id="product-stock-display" readonly placeholder="Akan terisi otomatis">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-quantity">Jumlah:</label>
+                        <input type="number" id="product-quantity" value="1" min="1" placeholder="Jumlah produk">
+                    </div>
+                    <div class="button-group">
+                        <button class="primary" id="add-to-cart-btn"><i data-feather="plus-circle"></i> Tambah ke Keranjang</button>
+                        <button class="secondary" id="clear-input-btn"><i data-feather="refresh-cw"></i> Bersihkan Input</button>
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <h2><i data-feather="shopping-bag"></i> Keranjang Belanja</h2>
+                    <div class="cart-items scrollable-container">
+                        <p class="empty-cart-message">Keranjang kosong. Pilih produk dari daftar.</p>
+                    </div>
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">Rp 0</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="discount-type">Jenis Diskon:</label>
+                            <select id="discount-type">
+                                <option value="none">Tidak Ada Diskon</option>
+                                <option value="percentage">Persentase (%)</option>
+                                <option value="nominal">Nominal (Rp)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="discount-value-group" style="display:none;">
+                            <label for="discount-value">Nilai Diskon:</label>
+                            <input type="number" id="discount-value" value="0" min="0" placeholder="Masukkan nilai diskon">
+                        </div>
+                        <div class="summary-row">
+                            <span>Diskon:</span>
+                            <span id="discount">Rp 0</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total Pembayaran:</span>
+                            <span id="total-payment">Rp 0</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount-paid">Jumlah Dibayar (Rp):</label>
+                            <input type="number" id="amount-paid" value="0" min="0" placeholder="Masukkan jumlah uang dibayar">
+                        </div>
+                        <div class="summary-row total" id="change-row">
+                            <span>Kembalian:</span>
+                            <span id="change-amount">Rp 0</span>
+                        </div>
+                        <div class="button-group">
+                            <button class="success" id="process-payment-btn"><i data-feather="dollar-sign"></i> Proses Pembayaran</button>
+                            <button class="danger" id="clear-cart-btn"><i data-feather="trash-2"></i> Bersihkan Keranjang</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="produk" class="tab-content">
+            <h2><i data-feather="database"></i> Manajemen Produk</h2>
+            <div class="product-form-container">
+                <div class="form-group">
+                    <label for="new-product-name">Nama Produk Baru:</label>
+                    <input type="text" id="new-product-name" placeholder="Contoh: Kopi Americano">
+                </div>
+                <div class="form-group">
+                    <label for="new-product-category">Kategori:</label>
+                    <input type="text" id="new-product-category" placeholder="Contoh: Minuman, Makanan">
+                </div>
+                <div class="form-group">
+                    <label for="new-product-cost-price">Harga Beli (Rp):</label>
+                    <input type="number" id="new-product-cost-price" min="0" value="0" placeholder="Harga beli produk">
+                </div>
+                <div class="form-group">
+                    <label for="new-product-price">Harga Jual (Rp):</label>
+                    <input type="number" id="new-product-price" min="0" value="0" placeholder="Harga jual produk">
+                </div>
+                <div class="form-group">
+                    <label for="new-product-markup-percentage">Markup (%):</label>
+                    <input type="number" id="new-product-markup-percentage" min="0" max="1000" step="0.01" readonly title="Markup dihitung otomatis (Harga Jual - Harga Beli) / Harga Beli * 100">
+                </div>
+                <div class="form-group">
+                    <label for="new-product-stock">Stok Awal:</label>
+                    <input type="number" id="new-product-stock" min="0" value="0" placeholder="Jumlah stok awal">
+                </div>
+                <div class="form-group">
+                    <label for="new-product-min-stock">Min. Stok untuk Peringatan:</label>
+                    <input type="number" id="new-product-min-stock" min="0" value="0" placeholder="Stok minimum untuk peringatan">
+                </div>
+                <div class="button-group">
+                    <button class="primary" id="add-new-product-btn"><i data-feather="plus"></i> Tambah Produk Baru</button>
+                </div>
+            </div>
+
+            <table id="product-table">
+                <thead>
+                    <tr>
+                        <th>ID Produk</th>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Harga Beli</th>
+                        <th>Harga Jual</th>
+                        <th>Markup (%)</th>
+                        <th>Stok</th>
+                        <th>Min. Stok</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="product-list-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="pengeluaran" class="tab-content">
+            <h2><i data-feather="minus-circle"></i> Manajemen Pengeluaran</h2>
+            <div class="form-group">
+                <label for="expense-date">Tanggal Pengeluaran:</label>
+                <input type="date" id="expense-date" required>
+            </div>
+            <div class="form-group">
+                <label for="expense-category">Kategori Pengeluaran:</label>
+                <input type="text" id="expense-category" placeholder="Contoh: Sewa, Gaji, Listrik" required>
+            </div>
+            <div class="form-group">
+                <label for="expense-description">Deskripsi:</label>
+                <textarea id="expense-description" placeholder="Deskripsi detail pengeluaran" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="expense-amount">Jumlah (Rp):</label>
+                <input type="number" id="expense-amount" min="0" value="0" required placeholder="Jumlah pengeluaran">
+            </div>
+            <div class="button-group">
+                <button class="danger" id="add-expense-btn"><i data-feather="plus"></i> Tambah Pengeluaran</button>
+            </div>
+
+            <table id="expense-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tanggal</th>
+                        <th>Kategori</th>
+                        <th>Deskripsi</th>
+                        <th>Jumlah (Rp)</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-list-body">
+                    <p class="empty-table-message">Belum ada pengeluaran yang tercatat.</p>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="laporan" class="tab-content">
+            <h2><i data-feather="clipboard"></i> Laporan Penjualan</h2>
+            <div class="form-group">
+                <label for="report-date-filter">Filter Tanggal:</label>
+                <input type="month" id="report-date-filter" title="Filter laporan berdasarkan bulan dan tahun">
+            </div>
+            <table id="transaction-table">
+                <thead>
+                    <tr>
+                        <th>ID Transaksi</th>
+                        <th>Tanggal</th>
+                        <th>Total</th>
+                        <th>Diskon</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="transaction-list-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div id="rekapan" class="tab-content">
+            <h2><i data-feather="pie-chart"></i> Rekapan Keuangan Keseluruhan</h2>
+            <div class="recap-summary" id="recap-summary-content">
+                <div class="recap-card">
+                    <h3>Total Pendapatan</h3>
+                    <div class="amount" id="recap-revenue">Rp 0</div>
+                </div>
+                <div class="recap-card expense">
+                    <h3>Total HPP</h3>
+                    <div class="amount" id="recap-cost-of-goods">Rp 0</div>
+                </div>
+                 <div class="recap-card expense">
+                    <h3>Total Pengeluaran</h3>
+                    <div class="amount" id="recap-total-expense">Rp 0</div>
+                </div>
+                <div class="recap-card profit">
+                    <h3>Laba Bersih</h3>
+                    <div class="amount" id="recap-profit">Rp 0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 style="color: var(--primary-dark-gold); margin-bottom: 20px;">Grafik Pendapatan</h3>
+                <div class="form-group" style="width: 100%; max-width: 300px; text-align: center;">
+                    <label for="chart-filter">Tampilan Grafik:</label>
+                    <select id="chart-filter">
+                        <option value="daily">Harian (30 Hari Terakhir)</option>
+                        <option value="weekly">Mingguan (12 Minggu Terakhir)</option>
+                        <option value="monthly">Bulanan (12 Bulan Terakhir)</option>
+                        <option value="yearly">Tahunan</option>
+                    </select>
+                </div>
+                <canvas id="incomeTrendChart" aria-label="Grafik Tren Pendapatan" role="img"></canvas>
+                <p id="chart-empty-message" class="empty-chart-message" style="display:none;">Tidak ada data transaksi untuk menampilkan grafik.</p>
+            </div>
+            </div>
+
+        <div id="pengaturan" class="tab-content">
+            <h2><i data-feather="settings"></i> Pengaturan Aplikasi</h2>
+
+            <div class="settings-section">
+                <h3>Nama Perusahaan</h3>
+                <div class="form-group">
+                    <label for="company-name-input">Nama Perusahaan/Toko:</label>
+                    <input type="text" id="company-name-input" placeholder="Masukkan nama perusahaan Anda">
+                </div>
+                <div class="button-group">
+                    <button class="primary" id="save-company-name-btn"><i data-feather="save"></i> Simpan Nama Perusahaan</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Custom Logo Cetak Struk</h3>
+                <p class="settings-info">Masukkan URL gambar logo Anda. Logo akan tampil di atas struk cetak.</p>
+                <div class="form-group">
+                    <label for="receipt-logo-url-input">URL Logo:</label>
+                    <input type="text" id="receipt-logo-url-input" placeholder="Contoh: https://example.com/logo.png">
+                </div>
+                <div class="button-group">
+                    <button class="primary" id="save-receipt-logo-btn"><i data-feather="image"></i> Simpan Logo</button>
+                    <button class="secondary" id="clear-receipt-logo-btn"><i data-feather="x-circle"></i> Hapus Logo</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Manajemen Pengguna <span style="font-weight: normal; font-size: 0.8em; color: var(--info-color);">(Admin Only)</span></h3>
+                <p class="settings-info">Tambahkan pengguna baru atau lihat daftar pengguna. Untuk keamanan, aplikasi ini hanya menyimpan data di browser Anda.</p>
+                <div class="form-group">
+                    <label for="new-user-username">Username:</label>
+                    <input type="text" id="new-user-username" placeholder="Masukkan username baru">
+                </div>
+                <div class="form-group">
+                    <label for="new-user-password">Password:</label>
+                    <input type="password" id="new-user-password" placeholder="Masukkan password">
+                </div>
+                <div class="form-group">
+                    <label for="new-user-role">Peran:</label>
+                    <select id="new-user-role">
+                        <option value="kasir">Kasir</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button class="success" id="add-new-user-btn"><i data-feather="user-plus"></i> Tambah Pengguna Baru</button>
+                </div>
+
+                <h4 style="margin-top: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; color: var(--text-color);">Daftar Pengguna</h4>
+                <div id="user-list-display">
+                    <p class="empty-table-message">Tidak ada pengguna lain. Admin default selalu ada.</p>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Ekspor Data ke PDF</h3>
+                <p class="settings-info">Unduh data produk, laporan penjualan, atau daftar pengeluaran Anda dalam format PDF.</p>
+                <div class="button-group">
+                    <button class="info" id="export-products-pdf-btn"><i data-feather="download"></i> Produk (PDF)</button>
+                    <button class="info" id="export-transactions-pdf-btn"><i data-feather="download"></i> Laporan Penjualan (PDF)</button>
+                    <button class="info" id="export-expenses-pdf-btn"><i data-feather="download"></i> Pengeluaran (PDF)</button>
+                    <button class="info" id="export-recap-pdf-btn"><i data-feather="download"></i> Rekapan Keuangan (PDF)</button>
+                     <button class="info" id="export-chart-pdf-btn"><i data-feather="download"></i> Grafik Pendapatan (PDF)</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Hapus Semua Data Aplikasi</h3>
+                <p class="settings-info" style="color: var(--danger-color); font-weight: 600;">
+                    PERINGATAN: Tindakan ini akan menghapus SEMUA data aplikasi (produk, keranjang, transaksi, pengeluaran, dan pengguna lain) yang tersimpan di browser Anda. Tindakan ini TIDAK DAPAT DIBATALKAN!
+                </p>
+                <div class="button-group">
+                    <button class="danger" id="clear-all-data-btn"><i data-feather="alert-triangle"></i> Hapus Semua Data Aplikasi</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="notification-area">
+    </div>
+
+    <div id="loginModal" class="modal active">
+        <div class="modal-content login-modal-content">
+            <h3>Selamat Datang di <span id="login-company-name-display">Akuntansi Pintar</span></h3>
+            <p class="company-name">Sistem Keuangan Anda</p>
+            <div class="form-group">
+                <label for="login-username">Username:</label>
+                <input type="text" id="login-username" placeholder="Username Anda">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" placeholder="Password Anda">
+            </div>
+            <div class="button-group">
+                <button class="primary" id="login-btn"><i data-feather="log-in"></i> Login</button>
+            </div>
+            <p class="info-text">Default Admin: username `admin`, password `admin123`</p>
+        </div>
+    </div>
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" title="Tutup Modal">&times;</span>
+            <h3>Edit Produk</h3>
+            <div class="form-group">
+                <label for="modal-product-id">ID Produk:</label>
+                <input type="text" id="modal-product-id" readonly>
+            </div>
+            <div class="form-group">
+                <label for="modal-product-name">Nama Produk:</label>
+                <input type="text" id="modal-product-name">
+            </div>
+            <div class="form-group">
+                <label for="modal-product-category">Kategori:</label>
+                <input type="text" id="modal-product-category">
+            </div>
+            <div class="form-group">
+                <label for="modal-product-cost-price">Harga Beli (Rp):</label>
+                <input type="number" id="modal-product-cost-price" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modal-product-price">Harga Jual (Rp):</label>
+                <input type="number" id="modal-product-price" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modal-product-markup-percentage">Markup (%):</label>
+                <input type="number" id="modal-product-markup-percentage" min="0" max="1000" step="0.01" readonly title="Markup dihitung otomatis (Harga Jual - Harga Beli) / Harga Beli * 100">
+            </div>
+            <div class="form-group">
+                <label for="modal-product-stock">Stok:</label>
+                <input type="number" id="modal-product-stock" min="0">
+            </div>
+            <div class="form-group">
+                <label for="modal-product-min-stock">Min. Stok untuk Peringatan:</label>
+                <input type="number" id="modal-product-min-stock" min="0">
+            </div>
+            <div class="button-group">
+                <button class="secondary" id="cancel-edit-btn"><i data-feather="x-circle"></i> Batal</button>
+                <button class="primary" id="save-product-btn"><i data-feather="save"></i> Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="stockAdjustmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" title="Tutup Modal">&times;</span>
+            <h3 id="stock-modal-title">Penyesuaian Stok</h3>
+            <p>Produk: <strong id="stock-product-name-display"></strong> (ID: <span id="stock-product-id-display"></span>)</p>
+            <p>Stok Saat Ini: <strong id="current-stock-display"></strong></p>
+            <div class="form-group">
+                <label for="stock-adjustment-type">Jenis Penyesuaian:</label>
+                <select id="stock-adjustment-type">
+                    <option value="in">Barang Masuk (Tambah Stok)</option>
+                    <option value="out">Barang Keluar (Kurangi Stok)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="stock-adjustment-quantity">Jumlah:</label>
+                <input type="number" id="stock-adjustment-quantity" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label for="stock-adjustment-reason">Alasan (opsional):</label>
+                <textarea id="stock-adjustment-reason" rows="2" placeholder="Contoh: Barang baru datang, Rusak, Retur"></textarea>
+            </div>
+            <div class="button-group">
+                <button class="secondary" id="cancel-stock-adjustment-btn"><i data-feather="x-circle"></i> Batal</button>
+                <button class="primary" id="save-stock-adjustment-btn"><i data-feather="save"></i> Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="transactionDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" title="Tutup Modal">&times;</span>
+            <h3>Detail Transaksi</h3>
+            <p><strong>ID Transaksi:</strong> <span id="detail-transaction-id"></span></p>
+            <p><strong>Tanggal:</strong> <span id="detail-transaction-date"></span></p>
+            <h4>Item:</h4>
+            <ul id="detail-transaction-items"></ul>
+            <div class="summary-row"><span>Subtotal:</span> <span id="detail-transaction-subtotal"></span></div>
+            <div class="summary-row"><span>Diskon:</span> <span id="detail-transaction-discount">Rp 0</span></div>
+            <div class="summary-row total"><span>Total:</span> <span id="detail-transaction-total"></span></div>
+            <div class="summary-row"><span>Jumlah Dibayar:</span> <span id="detail-transaction-paid"></span></div>
+            <div class="summary-row"><span>Kembalian:</span> <span id="detail-transaction-change"></span></div>
+            <div class="button-group" style="justify-content: center;">
+                <button class="info" id="close-detail-modal-btn"><i data-feather="x"></i> Tutup</button>
+                <button class="primary" id="print-receipt-btn"><i data-feather="printer"></i> Cetak Struk</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" title="Tutup Modal">&times;</span>
+            <h3>Edit Pengeluaran</h3>
+            <div class="form-group">
+                <label for="modal-expense-id">ID Pengeluaran:</label>
+                <input type="text" id="modal-expense-id" readonly>
+            </div>
+            <div class="form-group">
+                <label for="modal-expense-date">Tanggal:</label>
+                <input type="date" id="modal-expense-date">
+            </div>
+            <div class="form-group">
+                <label for="modal-expense-category">Kategori:</label>
+                <input type="text" id="modal-expense-category">
+            </div>
+            <div class="form-group">
+                <label for="modal-expense-description">Deskripsi:</label>
+                <textarea id="modal-expense-description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="modal-expense-amount">Jumlah (Rp):</label>
+                <input type="number" id="modal-expense-amount" min="0">
+            </div>
+            <div class="button-group">
+                <button class="secondary" id="cancel-expense-edit-btn"><i data-feather="x-circle"></i> Batal</button>
+                <button class="primary" id="save-expense-btn"><i data-feather="save"></i> Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="printReceiptContent" class="print-receipt-content" style="display:none;">
+        <div class="receipt-logo-container">
+            <img id="receipt-logo" src="" alt="Company Logo" style="max-width: 100px; max-height: 80px; display: none;">
+        </div>
+    </div>
+
+    <div id="aboutUsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" title="Tutup Modal">&times;</span>
+            <h3><i data-feather="info"></i> Tentang Akuntansi Pintar</h3>
+            <p><strong>Akuntansi Pintar</strong> versi 1.0.0</p>
+            <p>Aplikasi ini dirancang untuk membantu para UMKM dalam hal pencatatan data keuangan usaha.</p>
+            <p><strong>Pengembang Utama:</strong> Bagus Fathur</p>
+            <p style="margin-left: 20px;">
+                Telp: 087800149808<br>
+                Email: <a href="mailto:fathurb100@gmail.com">fathurb100@gmail.com</a><br>
+                TikTok: <a href="https://www.tiktok.com/@arcofartur" target="_blank">@arcofartur</a><br>
+                Instagram: <a href="https://www.instagram.com/fathur_rc" target="_blank">fathur_Rc</a>
+            </p>
+            <p><strong>Berkolaborasi dengan:</strong> AI Gemini</p>
+            <p><strong>Pengkoreksi:</strong> Yuniar Rachmalita</p>
+            <p style="margin-left: 20px;">
+                Email: <a href="mailto:yuniarrachmalita711@gmail.com">yuniarrachmalita711@gmail.com</a><br>
+                TikTok: <a href="https://www.tiktok.com/@its_niarlt" target="_blank">@its_niarlt</a><br>
+                Instagram: <a href="https://www.instagram.com/niarchmlt._" target="_blank">niarchmlt._</a>
+            </p>
+            <p><strong>Toko Penguji Pertama:</strong> Sinar Photo Copy</p>
+            <p style="margin-left: 20px;">
+                WhatsApp: <a href="https://wa.me/6285232347655" target="_blank">+62 852-3234-7655</a>
+            </p>
+            <div class="button-group" style="margin-top: 30px;">
+                <button class="info" id="close-about-us-modal-btn"><i data-feather="x"></i> Tutup</button>
+            </div>
+        </div>
+    </div>
+
+
+    <footer>
+        <p>&copy; 2025 <span id="footer-company-name">Akuntansi Pintar</span>. <a href="#" id="about-us-link">Tentang Kami</a>. Hak cipta dilindungi.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+
